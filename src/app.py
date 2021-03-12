@@ -4,10 +4,9 @@ import dash_html_components as html
 import pandas as pd
 import numpy as np
 from dash.dependencies import Output, Input
+import os
+import flask
 
-data = pd.read_csv("avocado.csv")
-data["Date"] = pd.to_datetime(data["Date"], format="%Y-%m-%d")
-data.sort_values("Date", inplace=True)
 
 external_stylesheets = [
     {
@@ -16,11 +15,19 @@ external_stylesheets = [
         "rel": "stylesheet",
     },
 ]
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-server = app.server
+
+
+server = flask.Flask(__name__)
+
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets, server=server)
 
 app.title = "Avocado Analytics: Understand Your Avocados!"
+
+data = pd.read_csv("src/avocado.csv")
+data["Date"] = pd.to_datetime(data["Date"], format="%Y-%m-%d")
+data.sort_values("Date", inplace=True)
+
 
 app.layout = html.Div(
     children=[
@@ -168,4 +175,6 @@ def update_charts(region, avocado_type, start_date, end_date):
 
 
 if __name__ == "__main__":
+
     app.run_server(debug=True)
+    # app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
